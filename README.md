@@ -1,89 +1,81 @@
 # Travel Agent AI Planner 🌍✈️
 
-A professional, full-stack AI-powered travel planning application built with FastAPI and React.
+A professional, full-stack AI-powered travel planning application built with FastAPI and React. This project demonstrates a sophisticated multi-turn agentic workflow capable of tool use, structured data extraction, and real-time UI synchronization.
 
-## 🚀 Overview
+## 🚀 What was built and why
+**Why this use case?**
+Travel planning is a classic **coordination problem** that goes beyond simple Q&A. It requires an agent to:
+1. **Gather High-Entropy Data**: Fetching dynamic weather, varying show times, and diverse attractions.
+2. **Apply User Constraints**: Cross-referencing findings with specific user dates, budget, and persona-based interests.
+3. **Proactive State Management**: Automatically syncing the "mental model" of the trip into a visual UI (forms/tables) so the user doesn't have to track details manually.
 
-This application provides a seamless travel planning experience. Users can chat with an AI agent to get weather updates, tourist attractions, and show recommendations for major world cities. The agent intelligently populates a travel preparation form and generates personalized itineraries.
+- **Intelligent State-Sync**: Travel planning is inherently visual. Instead of just providing wall-of-text answers, this system uses "Client Actions" to proactively sync the agent's findings with the interactive UI—filling out preparation forms and building live recommendation tables as the conversation progresses.
+- **Persona Alignment**: The agent utilizes local "Knowledge" (interests like 'Theater' or 'Outdoors') to filter the massive search space of a city, ensuring recommendations are relevant, not generic.
 
-## 🛠 Tech Stack
+## 🛠 Capabilities & Actions
 
-### Backend
-- **Framework**: FastAPI (Python 3.9+)
-- **AI**: OpenAI GPT-4o
-- **Services**: Modular service-oriented architecture
-- **Documentation**: Swagger/OpenAPI (at `/docs`)
+The system operates using a bi-directional communication protocol via NDJSON streams.
 
-### Frontend
-- **Framework**: React via Vite
-- **Styling**: Vanilla CSS (Modular)
-- **Icons**: Lucide React
-- **PDF Generation**: jsPDF
+### Server-Side Tools
+The agent has access to the following programmatic tools to gather real-time or curated data:
+- `get_weather(city)`: Fetches current weather (Real-time via OpenWeatherMap API).
+- `get_attractions(city)`: Retrieves top-rated tourist landmarks.
+- `get_shows(city)`: Finds current entertainment, theater, and sports events.
 
-## 🏗 Architecture
+### Client-Side Actions
+The backend can trigger specific UI state changes on the user's screen by emitting action events:
+- `update_travel_form`: Automatically populates the sidebar form (Destination, Dates, Checklist) when the agent detects relevant information in the conversation.
+- `enable_download`: Informs the UI when a plan is ready and provides the necessary metadata for PDF generation.
+- `auto_select_preferences`: Highlights specific recommendations in the table that perfectly match the user's stored interests.
 
-The project follows a clean, modular structure for scalability and maintainability.
+## 🧠 Knowledge Management
+**Location**: `backend/knowledge.json`
 
-```text
-SR/
-├── backend/                # FastAPI Application
-│   ├── app/
-│   │   ├── api/routers/    # API endpoints (Weather, Attractions, Shows)
-│   │   ├── core/           # Configuration and prompts
-│   │   ├── models/         # Pydantic models
-│   │   ├── services/       # Core business logic (Agent, Extractor, Tools)
-│   │   └── main.py         # Application entry point
-│   ├── knowledge.json      # User preferences mock database
-│   ├── .env                # Environment variables
-│   └── requirements.txt    # Python dependencies
-├── frontend/               # React Application
-│   ├── src/
-│   │   ├── assets/styles/  # Centralized CSS
-│   │   ├── components/
-│   │   │   ├── chat/       # Chat-related UI
-│   │   │   └── workspace/  # Main layout and form components
-│   │   ├── services/       # API integration
-│   │   ├── utils/          # PDF generator and helpers
-│   │   └── App.jsx         # Root component
-│   └── package.json        # Frontend dependencies
-├── run.ps1                 # Unified Windows Run Script
-├── run.sh                  # Unified Unix/Linux Run Script
-└── README.md               # Project documentation
-```
+**How it's used**:
+1. **Persona Consistency**: The agent is primed with the user's name and bio, allowing it to address the user personally (e.g., "Hello Sahil!").
+2. **Interest Alignment**: The agent uses the `preferences.interests` field to rank and highlight attractions. If a user likes "Theater," the agent will prioritize the West End in London over sports stadiums.
+3. **Implicit Context**: This knowledge acts as a "long-term memory" that persists across sessions, unlike the conversation history which is short-term.
 
-## ⚙️ Setup Instructions
+## 🏗 Tech Stack
+- **Backend**: FastAPI, OpenAI GPT-4o, Pydantic.
+- **Frontend**: React (Vite), Lucide Icons, Vanilla CSS (Modular).
+- **Automation**: PowerShell (`run.ps1`) and Bash (`run.sh`) scripts for one-click deployment.
 
-### Environment Variables
+## ⚙️ How to Run
 
+### 1. Prerequisites
+- Python 3.9+ and Node.js 18+.
+- **API Keys**: OpenAI and OpenWeatherMap.
+
+### 2. Environment Setup
 Create a `.env` file in the `backend/` directory:
-
 ```env
-OPENAI_API_KEY=your_openai_api_key_here
-OPENWEATHERMAP_API_KEY=your_openweathermap_api_key_here
+OPENAI_API_KEY=your_key
+OPENWEATHERMAP_API_KEY=your_key
 ```
 
-### Local Development
+### 3. Execution
+The project includes unified run scripts that manage virtual environments, install dependencies, and launch both services simultaneously.
 
-1. **Prerequisites**:
-   - Python 3.9 or higher
-   - Node.js 18 or higher
-   - OpenAI and OpenWeatherMap API keys
+**Windows (PowerShell):**
+```powershell
+./run.ps1
+```
 
-2. **Unified Startup**:
-   
-   **Windows (PowerShell):**
-   ```powershell
-   ./run.ps1
-   ```
-   
-   **macOS / Linux:**
-   ```bash
-   chmod +x run.sh
-   ./run.sh
-   ```
+**macOS / Linux (Bash):**
+```bash
+chmod +x run.sh
+./run.sh
+```
 
-## 🚩 Troubleshooting
+## ⚖️ Tradeoffs & Next Steps
 
-- **CORS Errors**: Ensure the backend allows `http://localhost:5173`.
-- **API Keys**: Verify that your `.env` file is in the `backend/` directory and keys are valid.
-- **Port Conflicts**: Backend runs on `8000`, Frontend on `5173`.
+### Tradeoffs
+- **In-Memory Sessions**: Conversation history is currently stored in memory (`sessions` dict). For production, this would be moved to Redis or PostgreSQL.
+- **Static Knowledge**: Preferences are loaded from a JSON file. Real-world apps would use an `/api/profile` endpoint backed by a database.
+- **Mocked Content**: While weather is real-time, attractions and shows for several cities are currently pulled from curated lists to ensure consistent demo performance.
+
+### Next Steps
+- **Production Persistence**: Integrate a database (Supabase/Firebase) for user profiles and chat history.
+- **Complex Multi-City Routing**: Support planning trips that span multiple destinations in a single itinerary.
+- **Architectural Scaling**: If the agent grew to handle multiple concurrent goals, complex conditional branching, or multi-day long-running workflows, I would migrate the core logic to **LangGraph** for more robust stateful execution and use **LangChain** for standardized tool abstractions.

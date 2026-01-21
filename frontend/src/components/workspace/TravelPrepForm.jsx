@@ -1,9 +1,16 @@
 import React from 'react';
 import { Calendar, MapPin, CheckSquare, Square } from 'lucide-react';
 
+/**
+ * TravelPrepForm provides a sidebar UI for users to manually manage 
+ * their travel details like destination, dates, and a preparation checklist.
+ * These values can also be automatically updated by the agent via 'client_action' events.
+ */
 const TravelPrepForm = ({ formData, onFormChange }) => {
+    // List of cities supported by the mock backend/recommendation logic
     const cities = ['New York', 'Paris', 'London', 'Tokyo', 'Barcelona', 'Berlin', 'Rome', 'Sydney', 'Dubai', 'Mumbai', 'Toronto'];
 
+    // Checklist items for trip preparation
     const checklistItems = [
         { id: 'passport', label: 'Passport' },
         { id: 'visa', label: 'Visa' },
@@ -15,18 +22,31 @@ const TravelPrepForm = ({ formData, onFormChange }) => {
         { id: 'medications', label: 'Medications' }
     ];
 
+    /**
+     * Updates the destination city in the parent state.
+     */
     const handleCityChange = (e) => {
         onFormChange({ ...formData, city: e.target.value });
     };
 
+    /**
+     * Updates the start date of the trip.
+     */
     const handleStartDateChange = (e) => {
         onFormChange({ ...formData, startDate: e.target.value });
     };
 
+    /**
+     * Updates the end date of the trip.
+     */
     const handleEndDateChange = (e) => {
         onFormChange({ ...formData, endDate: e.target.value });
     };
 
+    /**
+     * Toggles a checklist item's status (checked/unchecked).
+     * @param {string} itemId - The ID of the checklist item (e.g., 'passport').
+     */
     const handleChecklistToggle = (itemId) => {
         const newChecklist = { ...formData.checklist };
         newChecklist[itemId] = !newChecklist[itemId];

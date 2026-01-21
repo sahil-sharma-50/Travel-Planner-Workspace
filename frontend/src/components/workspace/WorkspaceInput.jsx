@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import { Send } from 'lucide-react';
 
+/**
+ * WorkspaceInput provides a text input field for the user to send queries
+ * to the travel agent. It supports Enter to submit and Shift+Enter for new lines (if it were a textarea).
+ */
 const WorkspaceInput = ({ onSubmit, disabled }) => {
     const [input, setInput] = useState('');
 
+    /**
+     * Prevents default form submission and calls the parent's onSubmit.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();
         if (input.trim() && !disabled) {
@@ -12,6 +19,9 @@ const WorkspaceInput = ({ onSubmit, disabled }) => {
         }
     };
 
+    /**
+     * Handles keyboard shortcuts for submission.
+     */
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();

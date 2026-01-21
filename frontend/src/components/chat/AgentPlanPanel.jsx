@@ -1,12 +1,13 @@
-import React from 'react';
-import { Target, CheckCircle2, Circle } from 'lucide-react';
-
+/**
+ * AgentPlanPanel displays the user's current query and their 
+ * persistent profile/knowledge base information (preferences, interests).
+ */
 const AgentPlanPanel = ({ query, steps, currentStep, userPreferences }) => {
     return (
         <div className="agent-plan-panel">
             <div className="panel-header">
                 <Target size={20} />
-                <h2>Agent Plan</h2>
+                <h2>Context & Preferences</h2>
             </div>
 
             <div className="panel-content">
@@ -18,9 +19,10 @@ const AgentPlanPanel = ({ query, steps, currentStep, userPreferences }) => {
                 )}
 
 
+                {/* Static User Knowledge from backend knowledge.json */}
                 {userPreferences && (
                     <div className="knowledge-section">
-                        <h3>Knowledge Base</h3>
+                        <h3>User Background</h3>
                         <div className="knowledge-card">
                             <div className="knowledge-item">
                                 <span className="knowledge-label">User:</span>

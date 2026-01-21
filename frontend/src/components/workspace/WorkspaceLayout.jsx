@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import AgentPlanPanel from '../chat/AgentPlanPanel';
-import ExecutionTracePanel from './ExecutionTracePanel';
-import WorkspaceInput from './WorkspaceInput';
-import TravelPrepForm from './TravelPrepForm';
-
+/**
+ * WorkspaceLayout is the main container component for the Travel Planner application.
+ * It manages the global state including conversation history, current query, 
+ * agent execution traces, and travel form data.
+ */
 const WorkspaceLayout = () => {
+    // --- State Management ---
     const [query, setQuery] = useState('');
     const [steps, setSteps] = useState([
         'Analyze request',
@@ -36,15 +36,17 @@ const WorkspaceLayout = () => {
 
     const [conversationHistory, setConversationHistory] = useState([]);
 
-    // Generate session ID on mount
+    // --- Initialization Effects ---
+
+    // Generate a unique session ID once when the app starts
     React.useEffect(() => {
         const id = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         setSessionId(id);
     }, []);
 
-    // Load user preferences on mount
+    // Load static user preferences and interests from the backend
     React.useEffect(() => {
-        fetch('http://127.0.0.1:8000/knowledge')
+        fetch('http://127.0.0.1:8000/api/v1/knowledge')
             .then(res => res.json())
             .then(data => {
                 if (data.user) {
@@ -58,6 +60,10 @@ const WorkspaceLayout = () => {
             .catch(err => console.error('Failed to load preferences:', err));
     }, []);
 
+    /**
+     * Handles the submission of a new user query.
+     * Communicates with the backend using a streaming NDJSON response.
+     */
     const handleSubmit = async (userQuery) => {
         setQuery(userQuery);
         setCurrentStep(0);
@@ -67,7 +73,7 @@ const WorkspaceLayout = () => {
         setIsProcessing(true);
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/plan_tour', {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/plan_tour', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -211,7 +217,7 @@ const WorkspaceLayout = () => {
         setPersonalizedPlan(null); // Clear previous personalized plan
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/plan_tour', {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/plan_tour', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

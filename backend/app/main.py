@@ -4,9 +4,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
-from backend.app.api.routers import weather, attractions, shows
-from backend.app.services.agent import run_agent_stream
-from backend.app.models.agent import AgentRequest
+from app.api.routers import weather, attractions, shows
+from app.services.agent import run_agent_stream
+from app.models.agent import AgentRequest
 
 # Setup logging
 logging.basicConfig(
@@ -44,7 +44,7 @@ def get_knowledge():
     Retrieve user knowledge and preferences from knowledge.json.
     """
     try:
-        with open('backend/knowledge.json', 'r') as f:
+        with open('knowledge.json', 'r') as f:
             return json.load(f)
     except Exception as e:
         logger.error(f"Error reading knowledge.json: {e}")

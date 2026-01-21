@@ -1,5 +1,5 @@
 import logging
-from backend.app.api.routers import weather, attractions, shows
+from app.api.routers import weather, attractions, shows
 
 logger = logging.getLogger(__name__)
 

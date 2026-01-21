@@ -2,9 +2,9 @@ import os
 import json
 import logging
 from openai import OpenAI
-from backend.app.core.prompts import SYSTEM_PROMPT, PREFERENCES_PROMPT
-from backend.app.services.extractor import extract_form_data
-from backend.app.services.tools import get_weather_tool, get_attractions_tool, get_shows_tool, TOOLS_DEFINITION
+from app.core.prompts import SYSTEM_PROMPT, PREFERENCES_PROMPT
+from app.services.extractor import extract_form_data
+from app.services.tools import get_weather_tool, get_attractions_tool, get_shows_tool, TOOLS_DEFINITION
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def run_agent_stream(user_prompt: str, conversation_history: list, session_id: s
     """
     # Load user preferences
     try:
-        with open('backend/knowledge.json', 'r') as f:
+        with open('knowledge.json', 'r') as f:
             knowledge = json.load(f)
             user_info = knowledge.get('user', {})
             user_name = user_info.get('name', 'User')
@@ -160,12 +160,12 @@ def run_agent_stream(user_prompt: str, conversation_history: list, session_id: s
                 city = function_args.get("city", "")
                 structured_data["weather"] = get_weather_tool(city)
             elif function_name == "get_attractions":
-                from backend.app.api.routers import attractions as attr_router
+                from app.api.routers import attractions as attr_router
                 city_key = function_args.get("city", "").lower()
                 if city_key in attr_router.ATTRACTIONS:
                     structured_data["attractions"] = attr_router.ATTRACTIONS[city_key]["attractions"]
             elif function_name == "get_shows":
-                from backend.app.api.routers import shows as show_router
+                from app.api.routers import shows as show_router
                 city_key = function_args.get("city", "").lower()
                 if city_key in show_router.SHOWS:
                     structured_data["shows"] = show_router.SHOWS[city_key]["shows"]

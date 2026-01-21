@@ -87,6 +87,3 @@ OPENWEATHERMAP_API_KEY=your_openweathermap_api_key_here
 - **CORS Errors**: Ensure the backend allows `http://localhost:5173`.
 - **API Keys**: Verify that your `.env` file is in the `backend/` directory and keys are valid.
 - **Port Conflicts**: Backend runs on `8000`, Frontend on `5173`.
-
-## 📄 License
-MIT

@@ -1,0 +1,320 @@
+import React, { useState, useEffect } from 'react';
+import { Activity, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import TextFormatter from './workspace/TextFormatter';
+import RecommendationsTable from './workspace/RecommendationsTable';
+import { downloadPlanAsPDF } from '../utils/pdfGenerator';
+
+/**
+ * ExecutionTracePanel component to display the agent's execution steps and results.
+ */
+const ExecutionTracePanel = ({
+    traces,
+    finalResponse,
+    plan,
+    structuredData,
+    userPreferences,
+    conversationHistory,
+    onPlanRequest,
+    isProcessing,
+    travelFormData,
+    personalizedPlan,
+    isProcessingPlan
+}) => {
+    const [isExpanded, setIsExpanded] = useState(true);
+    const [recommendations, setRecommendations] = useState({ attractions: [], shows: [] });
+    const [selections, setSelections] = useState({ attractions: [], shows: [] });
+    const [showConversation, setShowConversation] = useState(false);
+
+    useEffect(() => {
+        if (structuredData) {
+            setRecommendations(structuredData);
+            setSelections({ attractions: [], shows: [] });
+        } else if (finalResponse) {
+            const parsed = parseRecommendations(finalResponse);
+            setRecommendations(parsed);
+            setSelections({ attractions: [], shows: [] });
+        }
+    }, [finalResponse, structuredData]);
+
+    const categorizeRecommendations = (items, type) => {
+        if (!userPreferences || !items) return { matched: [], other: [] };
+        const userInterests = userPreferences.interests || [];
+        const matched = [];
+        const other = [];
+
+        items.forEach(item => {
+            if (item.type && userInterests.some(interest =>
+                interest.toLowerCase() === item.type.toLowerCase()
+            )) {
+                matched.push(item);
+            } else {
+                other.push(item);
+            }
+        });
+        return { matched, other };
+    };
+
+    const attractionCategories = categorizeRecommendations(recommendations.attractions, 'attractions');
+    const showCategories = categorizeRecommendations(recommendations.shows, 'shows');
+
+    const parseRecommendations = (response) => {
+        const attractions = [];
+        const shows = [];
+        const attractionPatterns = [
+            /(?:visit|see|explore)\s+([A-Z][^.,\n]+(?:Museum|Tower|Park|Cathedral|Stadium|Temple|Garden|Quarter|Eye|Liberty)[^.,\n]*)/gi,
+            /([A-Z][^.,\n]+(?:Museum|Tower|Park|Cathedral|Stadium|Temple|Garden|Quarter|Eye|Liberty))/g
+        ];
+        const showPatterns = [
+            /(?:watch|attend|see)\s+([A-Z][^.,\n]+)/gi,
+            /([A-Z][^.,\n]+(?:Theatre|Opera|Musical|Show|Wrestling|FC|King|Hamilton|Rouge|Garnier|Phantom|Miserables))/g
+        ];
+
+        attractionPatterns.forEach(pattern => {
+            const matches = response.matchAll(pattern);
+            for (const match of matches) {
+                const name = match[1].trim();
+                if (name.length > 3 && !attractions.some(a => a.name === name)) {
+                    attractions.push({ name });
+                }
+            }
+        });
+
+        showPatterns.forEach(pattern => {
+            const matches = response.matchAll(pattern);
+            for (const match of matches) {
+                const name = match[1].trim();
+                if (name.length > 3 && !shows.some(s => s.name === name) && !attractions.some(a => a.name === name)) {
+                    shows.push({ name });
+                }
+            }
+        });
+        return { attractions: attractions.slice(0, 10), shows: shows.slice(0, 10) };
+    };
+
+    const toggleSelection = (type, name) => {
+        setSelections(prev => ({
+            ...prev,
+            [type]: prev[type].includes(name)
+                ? prev[type].filter(n => n !== name)
+                : [...prev[type], name]
+        }));
+    };
+
+    const getStatusIcon = (trace) => {
+        if (trace.status === 'success') return '✓';
+        if (trace.status === 'failed') return '✕';
+        return '→';
+    };
+
+    const getStatusClass = (trace) => {
+        if (trace.status === 'success') return 'status-success';
+        if (trace.status === 'failed') return 'status-failed';
+        return '';
+    };
+
+    const handlePlanClick = async () => {
+        try {
+            await onPlanRequest(selections);
+        } catch (error) {
+            console.error('Plan generation failed:', error);
+        }
+    };
+
+    const handleDownloadPDF = () => {
+        downloadPlanAsPDF({ personalizedPlan, finalResponse, travelFormData });
+    };
+
+    const hasRecommendations = recommendations.attractions.length > 0 || recommendations.shows.length > 0;
+
+    return (
+        <div className="execution-trace-panel">
+            <div className="panel-header">
+                <Activity size={20} />
+                <h2>Execution Trace</h2>
+            </div>
+
+            <div className="panel-content">
+                {conversationHistory && conversationHistory.length > 0 && (
+                    <div className="conversation-history">
+                        <div className="conversation-header" onClick={() => setShowConversation(!showConversation)}>
+                            <h3>💬 Conversation History</h3>
+                            <button className="collapse-btn">
+                                {showConversation ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                            </button>
+                        </div>
+                        {showConversation && (
+                            <div className="conversation-messages">
+                                {conversationHistory.map((msg, idx) => (
+                                    <div key={idx} className={`conversation-message ${msg.role}`}>
+                                        <div className="message-header">
+                                            <span className="message-role">{msg.role === 'user' ? '👤 You' : '🤖 Agent'}</span>
+                                            <span className="message-time">{msg.timestamp}</span>
+                                        </div>
+                                        <div className="message-content"><TextFormatter text={msg.content} /></div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {personalizedPlan && (
+                    <div className="execution-plan personalized-plan">
+                        <div className="plan-header" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--accent-primary)' }}>
+                            <Sparkles size={18} />
+                            <h3>Your Personalized Plan</h3>
+                        </div>
+                        <div className="plan-content"><TextFormatter text={personalizedPlan} /></div>
+                    </div>
+                )}
+
+                {plan && (
+                    <div className="execution-plan">
+                        <h3>Plan</h3>
+                        <div className="plan-content"><TextFormatter text={plan} /></div>
+                    </div>
+                )}
+
+                {traces.length > 0 && (
+                    <div className="activity-log">
+                        <div className="trace-header-bar" onClick={() => setIsExpanded(!isExpanded)}>
+                            <h3>Activity</h3>
+                            <button className="collapse-btn">
+                                {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                            </button>
+                        </div>
+                        {isExpanded && (
+                            <div className="activity-list">
+                                {traces.map((trace, index) => (
+                                    <div key={index} className={`activity-item ${getStatusClass(trace)}`}>
+                                        <div className="activity-icon-container">
+                                            {getStatusIcon(trace)}
+                                        </div>
+                                        <div className="activity-content">
+                                            <span className="activity-label">{trace.label}</span>
+                                            {trace.reason && <span className="activity-reason"> • {trace.reason}</span>}
+                                        </div>
+                                        <span className="activity-time">{trace.timestamp}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {finalResponse && structuredData && structuredData.weather && (
+                    <div className="weather-card">
+                        <div className="weather-header">
+                            <h3>🌤️ Weather Information</h3>
+                        </div>
+                        <div className="weather-content">
+                            <div className="weather-main">
+                                <div className="temperature">{structuredData.weather.temperature}°C</div>
+                                <div className="weather-desc">{structuredData.weather.description}</div>
+                            </div>
+                            <div className="weather-details">
+                                <div className="weather-detail">
+                                    <span className="detail-label">Humidity:</span>
+                                    <span className="detail-value">{structuredData.weather.humidity}%</span>
+                                </div>
+                                <div className="weather-detail">
+                                    <span className="detail-label">Wind:</span>
+                                    <span className="detail-value">{structuredData.weather.wind_speed} m/s</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {finalResponse && hasRecommendations && (
+                    <div className="recommendations-table">
+                        <div className="table-header">
+                            <Sparkles size={20} />
+                            <h3>Recommendations</h3>
+                        </div>
+
+                        <div className="personalization-note">
+                            💡 These suggestions are based on your interests
+                        </div>
+
+                        <RecommendationsTable
+                            title="✨ Attractions Based on Your Interests"
+                            items={attractionCategories.matched}
+                            selectedItems={selections.attractions}
+                            type="attractions"
+                            onToggle={toggleSelection}
+                        />
+
+                        <RecommendationsTable
+                            title="Other Attractions"
+                            items={attractionCategories.other}
+                            selectedItems={selections.attractions}
+                            type="attractions"
+                            onToggle={toggleSelection}
+                        />
+
+                        <RecommendationsTable
+                            title="✨ Shows & Events Based on Your Interests"
+                            items={showCategories.matched}
+                            selectedItems={selections.shows}
+                            type="shows"
+                            onToggle={toggleSelection}
+                        />
+
+                        <RecommendationsTable
+                            title="Other Shows & Events"
+                            items={showCategories.other}
+                            selectedItems={selections.shows}
+                            type="shows"
+                            onToggle={toggleSelection}
+                        />
+
+                        {isProcessingPlan ? (
+                            <div className="action-buttons">
+                                <button disabled className="action-btn download-btn" style={{ opacity: 0.7, cursor: 'wait' }}>
+                                    ⏳ Processing Plan...
+                                </button>
+                            </div>
+                        ) : personalizedPlan ? (
+                            <div className="action-buttons">
+                                <button className="action-btn download-btn" onClick={handleDownloadPDF}>
+                                    📥 Download Plan PDF
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="action-buttons">
+                                <button
+                                    className="action-btn download-btn"
+                                    onClick={handlePlanClick}
+                                    disabled={selections.attractions.length === 0 && selections.shows.length === 0}
+                                >
+                                    📝 Plan It
+                                </button>
+                            </div>
+                        )}
+
+                        {(selections.attractions.length > 0 || selections.shows.length > 0) && (
+                            <div className="selected-summary">
+                                <strong>Selected:</strong> {selections.attractions.length + selections.shows.length} items
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {finalResponse && !hasRecommendations && (
+                    <div className="final-response">
+                        <div className="response-header">
+                            <Sparkles size={20} />
+                            <h3>Response</h3>
+                        </div>
+                        <div className="response-content">
+                            <TextFormatter text={finalResponse} />
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default ExecutionTracePanel;

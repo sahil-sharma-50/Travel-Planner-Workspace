@@ -1,0 +1,73 @@
+/* Recommendations Table */
+.recommendations-table-container {
+  margin-top: 1.5rem;
+}
+
+.recommendations-table-container h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 1rem 0;
+}
+
+.recommendations-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface-hover);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.recommendations-table thead {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.recommendations-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recommendations-table tbody tr {
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.recommendations-table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.recommendations-table tbody tr.selected {
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.recommendations-table td {
+  padding: 0.875rem 1rem;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.checkbox-cell {
+  text-align: center;
+}
+
+.recommendations-table .checkbox {
+  color: var(--text-secondary);
+}
+
+.recommendations-table .checkbox.checked {
+  color: var(--primary-color);
+}
+
+.category-cell {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}

@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
+
+:root {
+  /* Clean Zinc Theme */
+  --bg-color: #09090b;
+  /* Zinc 950 - Darker, cleaner background */
+  --surface-color: #18181b;
+  /* Zinc 900 - High contrast panel background */
+  --surface-hover: #27272a;
+  /* Zinc 800 - Interaction state */
+
+  /* Refined Primary - Vibrant Blue */
+  --primary-color: #3b82f6;
+  /* Blue 500 */
+  --primary-glow: rgba(59, 130, 246, 0.4);
+
+  /* Crisp Text */
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  /* Zinc 400 */
+
+  /* Accents */
+  --accent-color: #8b5cf6;
+  /* Violet 500 */
+  --bot-msg-bg: #27272a;
+  /* Zinc 800 */
+
+  --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-hover);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* Utility for glassmorphism */
+.glass {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gradient-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08) 0%, transparent 25%);
+  pointer-events: none;
+}

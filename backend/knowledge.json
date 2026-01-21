@@ -1,0 +1,9 @@
+{
+  "user": {
+    "name": "Sahil Sharma",
+    "preferences": {
+      "interests": ["Musical", "Sports", "Museum"],
+      "description": "Prefers cultural experiences including musicals, sports events, and museum visits"
+    }
+  }
+}

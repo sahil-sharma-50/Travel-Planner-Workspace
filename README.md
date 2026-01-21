@@ -1,61 +1,143 @@
-# Travel Agent AI Planner 🌍✈️
+# Travel Agent AI Planner 🌍
 
-A professional, full-stack AI-powered travel planning application built with FastAPI and React. This project demonstrates a sophisticated multi-turn agentic workflow capable of tool use, structured data extraction, and real-time UI synchronization.
+A **full-stack AI-powered travel planning application** built with **FastAPI** and **React**.
+This project showcases a **multi-turn, agentic workflow** capable of tool usage, structured data extraction, real-time UI synchronization, and personalized itinerary generation.
 
-## 🚀 What was built and why
+---
+
+## 🚀 Project Overview
+
 **Why this use case?**
-Travel planning is a classic **coordination problem** that goes beyond simple Q&A. It requires an agent to:
-1. **Gather High-Entropy Data**: Fetching dynamic weather, varying show times, and diverse attractions.
-2. **Apply User Constraints**: Cross-referencing findings with specific user dates, budget, and persona-based interests.
-3. **Proactive State Management**: Automatically syncing the "mental model" of the trip into a visual UI (forms/tables) so the user doesn't have to track details manually.
 
-- **Intelligent State-Sync**: Travel planning is inherently visual. Instead of just providing wall-of-text answers, this system uses "Client Actions" to proactively sync the agent's findings with the interactive UI—filling out preparation forms and building live recommendation tables as the conversation progresses.
-- **Persona Alignment**: The agent utilizes local "Knowledge" (interests like 'Theater' or 'Outdoors') to filter the massive search space of a city, ensuring recommendations are relevant, not generic.
+Travel planning is more than simple question–answering—it is a **coordination and decision-making problem**. 
+This project was built to demonstrate how an AI agent can:
 
-## 🛠 Capabilities & Actions
+- Gather and reason over **high-entropy, real-world data**
+- Respect **user constraints** such as dates and interests
+- Maintain and synchronize **agent state with a visual UI**
+- Deliver a **clear, actionable itinerary**, not just text responses
 
-The system operates using a bi-directional communication protocol via NDJSON streams.
+> **Key Differentiator:** Instead of providing wall-of-text answers, this system uses **Client Actions** to proactively sync the agent's findings with the interactive UI—filling out preparation forms and building live recommendation tables as the conversation progresses.
 
-### Server-Side Tools
-The agent has access to the following programmatic tools to gather real-time or curated data:
-- `get_weather(city)`: Fetches current weather (Real-time via OpenWeatherMap API).
-- `get_attractions(city)`: Retrieves top-rated tourist landmarks.
-- `get_shows(city)`: Finds current entertainment, theater, and sports events.
+### Main Interface
+![Main Interface](assets/main_interface.png)
 
-### Client-Side Actions
-The backend can trigger specific UI state changes on the user's screen by emitting action events:
-- `update_travel_form`: Automatically populates the sidebar form (Destination, Dates, Checklist) when the agent detects relevant information in the conversation.
-- `enable_download`: Informs the UI when a plan is ready and provides the necessary metadata for PDF generation.
-- `auto_select_preferences`: Highlights specific recommendations in the table that perfectly match the user's stored interests.
+---
+
+## ✨ Key Design Principles
+
+### 1. Intelligent State Synchronization
+Travel planning is inherently visual. Instead of producing long text outputs, the agent proactively updates the UI by emitting **Client Actions**:
+- Auto-fills forms
+- Updates tables
+- Enables downloads when the plan is complete
+
+This removes the cognitive load from the user and keeps the UI aligned with the agent’s “mental model”.
+
+### 2. Persona & Preference Alignment
+The agent leverages local **knowledge storage** (user profile and interests) to filter and rank results.  
+For example, if the user prefers **Theater**, cultural experiences are prioritized over generic attractions.
+
+---
+
+## 🧠 How the Agent Works
+
+### Step 1: Query Understanding & Planning
+The user’s request is parsed, structured, and converted into an execution plan with traceable reasoning.
+
+![Query Processing](assets/query_processing.png)
+
+---
+
+### Step 2: Automated Form Filling
+As soon as relevant details (destination, dates, preferences) are identified, the agent populates the travel form automatically.
+
+![Plan Trip – Form Filling](assets/plan_trip.png)
+
+---
+
+### Step 3: Tool Execution & Reasoning
+The agent gathers external and internal data, applies constraints, and refines recommendations based on preferences.
+
+---
+
+### Step 4: Final Response & Recommendations
+The system produces a curated, preference-aware travel plan synchronized with the UI.
+
+![Final Response](assets/response.png)
+
+---
+
+### Step 5: Exportable Itinerary
+Once the plan is finalized, the user can download the complete itinerary as a PDF.
+
+📄 **Sample Output**:  
+[Download Travel Itinerary PDF](assets/travel_itinerary_1769027141005.pdf)
+
+---
+
+## 🛠 Capabilities & Tools
+
+### 🔧 Server-Side Tools
+
+The agent has access to programmatic tools for gathering real-time data:
+
+- `get_weather(city)`: Fetches current weather conditions via OpenWeatherMap API
+- `get_attractions(city)`: Retrieves top-rated tourist landmarks and points of interest
+- `get_shows(city)`: Finds current entertainment, theater, and sports events
+
+### 🖥 Client-Side Actions
+
+The backend triggers specific UI state changes through action events:
+
+- `update_travel_form`: Automatically populates the sidebar with destination, dates, and checklist items when relevant information is detected
+- `enable_download`: Notifies the UI when a plan is ready for PDF export
+- `auto_select_preferences`: Highlights recommendations that align with stored user interests
+
+---
 
 ## 🧠 Knowledge Management
+
 **Location**: `backend/knowledge.json`
 
-**How it's used**:
-1. **Persona Consistency**: The agent is primed with the user's name and bio, allowing it to address the user personally (e.g., "Hello Sahil!").
-2. **Interest Alignment**: The agent uses the `preferences.interests` field to rank and highlight attractions. If a user likes "Theater," the agent will prioritize the West End in London over sports stadiums.
-3. **Implicit Context**: This knowledge acts as a "long-term memory" that persists across sessions, unlike the conversation history which is short-term.
+The knowledge base serves three critical functions:
 
-## 🏗 Tech Stack
-- **Backend**: FastAPI, OpenAI GPT-4o, Pydantic.
-- **Frontend**: React (Vite), Lucide Icons, Vanilla CSS (Modular).
-- **Automation**: PowerShell (`run.ps1`) and Bash (`run.sh`) scripts for one-click deployment.
+1. **Persona Consistency**: Stores user name and bio, allowing the agent to personalize interactions and maintain context across conversations.
+2. **Interest Alignment**: Uses preference data to rank and highlight attractions. For example, a user interested in theater receives theater recommendations over sports stadiums.
+3. **Implicit Context**: Acts as persistent context across sessions, complementing the short-term conversation history.
 
-## ⚙️ How to Run
+---
+
+## 💻 Technology Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | FastAPI, OpenAI GPT-4o, Pydantic |
+| **Frontend** | React (Vite), Lucide Icons, Vanilla CSS |
+| **Automation** | PowerShell and Bash scripts |
+
+---
+
+## ⚙️ Getting Started
 
 ### 1. Prerequisites
-- Python 3.9+ and Node.js 18+.
-- **API Keys**: OpenAI and OpenWeatherMap.
+
+- Python 3.9 or higher
+- Node.js 18 or higher
+- API Keys: OpenAI and OpenWeatherMap
 
 ### 2. Environment Setup
-Create a `.env` file in the `backend/` directory:
+
+Create a `.env` file in the `backend/` directory with your API credentials:
+
 ```env
-OPENAI_API_KEY=your_key
-OPENWEATHERMAP_API_KEY=your_key
+OPENAI_API_KEY=your_openai_key
+OPENWEATHERMAP_API_KEY=your_weather_key
 ```
 
-### 3. Execution
-The project includes unified run scripts that manage virtual environments, install dependencies, and launch both services simultaneously.
+### 3. Running the Application
+
+The project includes unified deployment scripts that manage virtual environments, install dependencies, and launch both backend and frontend services.
 
 **Windows (PowerShell):**
 ```powershell
@@ -68,14 +150,28 @@ chmod +x run.sh
 ./run.sh
 ```
 
-## ⚖️ Tradeoffs & Next Steps
+---
 
-### Tradeoffs
-- **In-Memory Sessions**: Conversation history is currently stored in memory (`sessions` dict). For production, this would be moved to Redis or PostgreSQL.
-- **Static Knowledge**: Preferences are loaded from a JSON file. Real-world apps would use an `/api/profile` endpoint backed by a database.
-- **Mocked Content**: While weather is real-time, attractions and shows for several cities are currently pulled from curated lists to ensure consistent demo performance.
+## ⬇️ Downloading Your Trip Plan
 
-### Next Steps
-- **Production Persistence**: Integrate a database (Supabase/Firebase) for user profiles and chat history.
-- **Complex Multi-City Routing**: Support planning trips that span multiple destinations in a single itinerary.
-- **Architectural Scaling**: If the agent grew to handle multiple concurrent goals, complex conditional branching, or multi-day long-running workflows, I would migrate the core logic to **LangGraph** for more robust stateful execution and use **LangChain** for standardized tool abstractions.
+Once your itinerary is finalized, download it as a PDF using the provided export feature. Your personalized travel plan will include all recommendations, weather data, and scheduling information.
+
+---
+
+## ⚖️ Design Decisions & Tradeoffs
+
+### Current Implementation
+
+- **In-Memory Sessions**: Conversation history is stored in memory. Production deployments would use Redis or PostgreSQL for scalability.
+- **Static Knowledge Base**: User preferences are loaded from JSON. Production systems would use database-backed profile endpoints.
+- **Partially Mocked Data**: While weather is real-time, attractions and show listings are curated to ensure consistent demo behavior.
+
+### Future Enhancements
+
+- **Production Persistence**: Migrate to cloud databases (Supabase, Firebase) for user profiles and chat history
+- **Multi-City Routing**: Enable complex itineraries spanning multiple destinations
+- **Architectural Scaling**: Adopt **LangGraph** for stateful multi-goal workflows and **LangChain** for standardized tool abstractions as complexity increases
+
+---
+
+📬 For questions or collaboration, feel free to reach out at: mr.sahilsharma50@gmail.com

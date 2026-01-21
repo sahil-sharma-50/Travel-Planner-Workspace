@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
-import TextFormatter from './workspace/TextFormatter';
-import RecommendationsTable from './workspace/RecommendationsTable';
-import { downloadPlanAsPDF } from '../utils/pdfGenerator';
+import TextFormatter from './TextFormatter';
+import RecommendationsTable from './RecommendationsTable';
+import { downloadPlanAsPDF } from '../../utils/pdfGenerator';
 
 /**
  * ExecutionTracePanel is the central feedback hub of the UI.

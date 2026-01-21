@@ -1,3 +1,9 @@
+import React, { useState } from 'react';
+import AgentPlanPanel from '../chat/AgentPlanPanel';
+import ExecutionTracePanel from './ExecutionTracePanel';
+import WorkspaceInput from './WorkspaceInput';
+import TravelPrepForm from './TravelPrepForm';
+
 /**
  * WorkspaceLayout is the main container component for the Travel Planner application.
  * It manages the global state including conversation history, current query, 

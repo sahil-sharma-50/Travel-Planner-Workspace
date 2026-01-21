@@ -59,7 +59,7 @@ The project includes unified run scripts that manage virtual environments, insta
 
 **Windows (PowerShell):**
 ```powershell
-./run.ps1
+powershell -ExecutionPolicy Bypass -File ./run.ps1
 ```
 
 **macOS / Linux (Bash):**

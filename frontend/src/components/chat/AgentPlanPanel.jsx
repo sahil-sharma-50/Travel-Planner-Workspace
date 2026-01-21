@@ -1,3 +1,6 @@
+import React from 'react';
+import { Target } from 'lucide-react';
+
 /**
  * AgentPlanPanel displays the user's current query and their 
  * persistent profile/knowledge base information (preferences, interests).

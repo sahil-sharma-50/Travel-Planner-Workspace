@@ -1,118 +1,129 @@
-import re
 import json
+import logging
+import os
 from datetime import datetime
+
+from openai import OpenAI
+
+logger = logging.getLogger(__name__)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 def extract_form_data(user_prompt: str, tool_calls: list = None):
     """
-    Extract travel form data (city, dates, checklist) from user prompt.
-    
+    Extract travel form data (city, dates, checklist) from user prompt using LLM.
+
     Args:
         user_prompt: The raw text input from the user.
         tool_calls: Optional list of tool calls from the LLM.
-        
+
     Returns:
         dict: A dictionary containing extracted city, dates, and checklist items.
     """
-    form_data = {
-        "city": "",
-        "startDate": "",
-        "endDate": "",
-        "checklist": {}
-    }
-    
-    # 1. Extract city
-    # Priority 1: From tool calls
-    if tool_calls:
-        for tool_call in tool_calls:
-            function_args = json.loads(tool_call.function.arguments)
-            if "city" in function_args:
-                form_data["city"] = function_args["city"].lower()
-                break
-    
-    # Priority 2: From regex (fallback or when no tool calls)
-    if not form_data["city"]:
-        cities = ['New York', 'Paris', 'London', 'Tokyo', 'Barcelona', 'Berlin', 'Rome', 'Sydney', 'Dubai', 'Mumbai', 'Toronto']
-        for city in cities:
-            if re.search(r'\b' + re.escape(city) + r'\b', user_prompt, re.IGNORECASE):
-                form_data["city"] = city.lower()
-                break
-                
-    # 2. Extract dates
-    # Support ranges and single dates
-    date_part = r'(?:\d{1,2}(?:st|nd|rd|th)?\s+\w+|\w+\s+\d{1,2}(?:st|nd|rd|th)?)'
-    date_part_yr = r'(?:' + date_part + r'\s+\d{4}|\d{4}-\d{2}-\d{2})'
-    sep = r'(?:\s+(?:to|til|till|until|and|-|–|—)\s+|\s*[-–—]\s*)'
-    
-    range_patterns = [
-        r'from\s+(' + date_part_yr + r')' + sep + r'(' + date_part_yr + r')',
-        r'from\s+(' + date_part + r')' + sep + r'(' + date_part + r')',
-        r'between\s+(' + date_part + r')' + sep + r'(' + date_part + r')',
-        r'(' + date_part_yr + r')' + sep + r'(' + date_part_yr + r')',
-        r'(' + date_part + r')' + sep + r'(' + date_part + r')',
-        r'(\d{4}-\d{2}-\d{2})\s*(?:to|til|till|until|-|–|—)\s*(\d{4}-\d{2}-\d{2})'
-    ]
-    
-    single_patterns = [
-        r'(?:on|at|by|around)\s+(' + date_part_yr + r')',
-        r'(?:on|at|by|around)\s+(' + date_part + r')',
-        r'\b(\d{4}-\d{2}-\d{2})\b'
-    ]
-    
-    date_formats = [
-        '%d %b %Y', '%d %B %Y', '%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y', '%d %b', '%d %B', '%b %d', '%B %d'
-    ]
+    form_data = {"city": "", "startDate": "", "endDate": "", "checklist": {}}
 
-    def parse_date(date_str):
-        if not date_str:
-            return None
-        clean_str = re.sub(r'(\d+)(st|nd|rd|th)', r'\1', date_str, flags=re.IGNORECASE)
-        for fmt in date_formats:
-            try:
-                dt = datetime.strptime(clean_str, fmt)
-                if dt.year == 1900:
-                    now = datetime.now()
-                    dt = dt.replace(year=now.year)
-                return dt
-            except ValueError:
-                continue
-        return None
+    # Use LLM to intelligently extract form data
+    try:
+        current_date = datetime.now().strftime("%Y-%m-%d")
 
-    # Check ranges first
-    for pattern in range_patterns:
-        match = re.search(pattern, user_prompt, re.IGNORECASE)
-        if match:
-            start_dt = parse_date(match.group(1))
-            end_dt = parse_date(match.group(2))
-            if start_dt: form_data["startDate"] = start_dt.strftime('%Y-%m-%d')
-            if end_dt: form_data["endDate"] = end_dt.strftime('%Y-%m-%d')
-            if form_data["startDate"]: break
+        extraction_prompt = f"""Extract travel planning information from the user's message. Today's date is {current_date}.
 
-    # If no start date found, check single dates
-    if not form_data["startDate"]:
-        for pattern in single_patterns:
-            match = re.search(pattern, user_prompt, re.IGNORECASE)
-            if match:
-                dt = parse_date(match.group(1))
-                if dt:
-                    form_data["startDate"] = dt.strftime('%Y-%m-%d')
-                    break
+User message: "{user_prompt}"
 
-    # 3. Extract checklist items
-    checklist_keywords = {
-        'passport': r'\b(?:passport|passports)\b',
-        'visa': r'\b(?:visa|visas)\b',
-        'tickets': r'\b(?:ticket|tickets|flight)\b',
-        'hotel': r'\b(?:hotel|accommodation|booking)\b',
-        'luggage': r'\b(?:luggage|baggage|bags?)\b',
-        'insurance': r'\b(?:insurance)\b',
-        'currency': r'\b(?:currency|money|cash)\b',
-        'medications': r'\b(?:medication|medicine|pills)\b'
-    }
-    
-    for item_id, pattern in checklist_keywords.items():
-        if re.search(pattern, user_prompt, re.IGNORECASE):
-            if re.search(r'\b(?:have|has|taken|packed|got|obtained|ready|done|check|checked)\b.*' + pattern, user_prompt, re.IGNORECASE) or \
-               re.search(pattern + r'.*\b(?:taken|packed|got|obtained|ready|done|check|checked|is\s+set)\b', user_prompt, re.IGNORECASE):
-                form_data["checklist"][item_id] = True
-            
+Extract the following information:
+1. **City/Destination**: Any city or destination mentioned (e.g., Paris, New York, Tokyo)
+2. **Start Date**: The beginning date of the trip in YYYY-MM-DD format
+3. **End Date**: The end date of the trip in YYYY-MM-DD format (if mentioned)
+4. **Checklist Items**: Identify if the user has mentioned having/packing any of these items:
+   - passport: passport or travel documents
+   - visa: visa or entry permits
+   - tickets: flight tickets, train tickets, or bookings
+   - hotel: hotel reservations or accommodation bookings
+   - luggage: luggage, bags, or baggage packed
+   - insurance: travel insurance
+   - currency: foreign currency or money exchanged
+   - medications: medications or medical supplies
+
+For checklist items, mark as true ONLY if the user explicitly indicates they HAVE, PACKED, or COMPLETED that item (e.g., "I have my passport", "tickets are booked", "packed my luggage").
+
+Respond ONLY with valid JSON in this exact format:
+{{
+  "city": "city name in lowercase or empty string if not found",
+  "startDate": "YYYY-MM-DD or empty string if not found",
+  "endDate": "YYYY-MM-DD or empty string if not found",
+  "checklist": {{
+    "passport": true/false,
+    "visa": true/false,
+    "tickets": true/false,
+    "hotel": true/false,
+    "luggage": true/false,
+    "insurance": true/false,
+    "currency": true/false,
+    "medications": true/false
+  }}
+}}
+
+Examples:
+- "I'm planning a trip to Paris from March 15 to March 20" → {{"city": "paris", "startDate": "2026-03-15", "endDate": "2026-03-20", "checklist": {{}}}}
+- "Going to Tokyo next month, I have my passport and visa ready" → {{"city": "tokyo", "startDate": "", "endDate": "", "checklist": {{"passport": true, "visa": true}}}}
+- "Booked my flight to London for June 5th. Hotel is also confirmed." → {{"city": "london", "startDate": "2026-06-05", "endDate": "", "checklist": {{"tickets": true, "hotel": true}}}}"""
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a precise data extraction assistant. Extract travel information and respond only with valid JSON.",
+                },
+                {"role": "user", "content": extraction_prompt},
+            ],
+            temperature=0,
+            max_tokens=500,
+        )
+
+        extracted_text = response.choices[0].message.content.strip()
+
+        # Remove markdown code blocks if present
+        if extracted_text.startswith("```json"):
+            extracted_text = extracted_text[7:]
+        if extracted_text.startswith("```"):
+            extracted_text = extracted_text[3:]
+        if extracted_text.endswith("```"):
+            extracted_text = extracted_text[:-3]
+        extracted_text = extracted_text.strip()
+
+        # Parse the JSON response
+        extracted_data = json.loads(extracted_text)
+
+        # Update form_data with extracted information
+        if extracted_data.get("city"):
+            form_data["city"] = extracted_data["city"].lower()
+
+        if extracted_data.get("startDate"):
+            form_data["startDate"] = extracted_data["startDate"]
+
+        if extracted_data.get("endDate"):
+            form_data["endDate"] = extracted_data["endDate"]
+
+        # Update checklist (only include items that are True)
+        if extracted_data.get("checklist"):
+            for item, status in extracted_data["checklist"].items():
+                if status is True:
+                    form_data["checklist"][item] = True
+
+        logger.info(f"LLM extracted form data: {form_data}")
+
+    except Exception as e:
+        logger.error(f"Error during LLM extraction: {e}")
+        # Fallback: try to get city from tool calls if available
+        if tool_calls:
+            for tool_call in tool_calls:
+                try:
+                    function_args = json.loads(tool_call.function.arguments)
+                    if "city" in function_args:
+                        form_data["city"] = function_args["city"].lower()
+                        break
+                except Exception:
+                    pass
+
     return form_data

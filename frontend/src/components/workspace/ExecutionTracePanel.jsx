@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Activity, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
-import TextFormatter from './TextFormatter';
-import RecommendationsTable from './RecommendationsTable';
+import { Activity, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { downloadPlanAsPDF } from '../../utils/pdfGenerator';
+import RecommendationsTable from './RecommendationsTable';
+import TextFormatter from './TextFormatter';
 
 /**
  * ExecutionTracePanel is the central feedback hub of the UI.
@@ -172,16 +172,6 @@ const ExecutionTracePanel = ({
                     </div>
                 )}
 
-                {personalizedPlan && (
-                    <div className="execution-plan personalized-plan">
-                        <div className="plan-header" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--accent-primary)' }}>
-                            <Sparkles size={18} />
-                            <h3>Your Personalized Plan</h3>
-                        </div>
-                        <div className="plan-content"><TextFormatter text={personalizedPlan} /></div>
-                    </div>
-                )}
-
                 {plan && (
                     <div className="execution-plan">
                         <h3>Plan</h3>
@@ -304,6 +294,16 @@ const ExecutionTracePanel = ({
                                 >
                                     📝 Plan It
                                 </button>
+                            </div>
+                        )}
+
+                        {personalizedPlan && (
+                            <div className="execution-plan personalized-plan">
+                                <div className="plan-header" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--accent-primary)' }}>
+                                    <Sparkles size={18} />
+                                    <h3>Your Personalized Plan</h3>
+                                </div>
+                                <div className="plan-content"><TextFormatter text={personalizedPlan} /></div>
                             </div>
                         )}
 

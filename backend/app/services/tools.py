@@ -46,6 +46,15 @@ def get_shows_tool(city: str):
         logger.error(f"Error fetching shows for {city}: {str(e)}")
         return f"Error fetching shows: {str(e)}"
 
+def change_theme_tool(theme: str):
+    """
+    Change the application theme.
+    
+    Args:
+        theme: The theme to change to ('light' or 'dark').
+    """
+    return {"status": "success", "theme": theme}
+
 TOOLS_DEFINITION = [
     {
         "type": "function",
@@ -95,6 +104,24 @@ TOOLS_DEFINITION = [
                     },
                 },
                 "required": ["city"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "change_theme",
+            "description": "Change the application theme to light or dark.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "theme": {
+                        "type": "string",
+                        "enum": ["light", "dark"],
+                        "description": "The theme to switch to",
+                    },
+                },
+                "required": ["theme"],
             },
         },
     },

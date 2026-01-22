@@ -35,6 +35,7 @@ const WorkspaceLayout = () => {
         checklist: {}
     });
     const [personalizedPlan, setPersonalizedPlan] = useState(null);
+    const [theme, setTheme] = useState('dark');
 
     const handleFormChange = (newFormData) => {
         setTravelFormData(newFormData);
@@ -147,6 +148,8 @@ const WorkspaceLayout = () => {
                                         checklist: mergedChecklist
                                     };
                                 });
+                            } else if (event.action === "change_theme") {
+                                setTheme(event.data.theme);
                             }
                         } else if (event.type === "result") {
                             botText += event.content;
@@ -272,7 +275,7 @@ const WorkspaceLayout = () => {
     };
 
     return (
-        <div className="workspace-layout">
+        <div className={`workspace-layout ${theme === 'light' ? 'light-theme' : ''}`}>
             <div className="workspace-header">
                 <h1>Travel Planner Workspace</h1>
             </div>

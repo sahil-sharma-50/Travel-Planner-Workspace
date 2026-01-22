@@ -28,6 +28,18 @@
   --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
+.light-theme {
+  --bg-color: #fafafa;
+  --surface-color: #ffffff;
+  --surface-hover: #f4f4f5;
+  --primary-color: #2563eb;
+  --primary-glow: rgba(37, 99, 235, 0.2);
+  --text-primary: #18181b;
+  --text-secondary: #71717a;
+  --accent-color: #7c3aed;
+  --bot-msg-bg: #f4f4f5;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

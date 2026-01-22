@@ -9,7 +9,7 @@ This project showcases a **multi-turn, agentic workflow** capable of tool usage,
 
 **Why this use case?**
 
-Travel planning is more than simple question–answering—it is a **coordination and decision-making problem**. 
+Travel planning is more than simple question–answering-it is a **coordination and decision-making problem**. 
 This project was built to demonstrate how an AI agent can:
 
 - Gather and reason over **high-entropy, real-world data**
@@ -17,7 +17,7 @@ This project was built to demonstrate how an AI agent can:
 - Maintain and synchronize **agent state with a visual UI**
 - Deliver a **clear, actionable itinerary**, not just text responses
 
-> **Key Differentiator:** Instead of providing wall-of-text answers, this system uses **Client Actions** to proactively sync the agent's findings with the interactive UI—filling out preparation forms and building live recommendation tables as the conversation progresses.
+> **Key Differentiator:** Instead of providing wall-of-text answers, this system uses **Client Actions** to proactively sync the agent's findings with the interactive UI-filling out preparation forms and building live recommendation tables as the conversation progresses.
 
 ### Main Interface
 ![Main Interface](assets/main_interface.png)

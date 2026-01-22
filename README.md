@@ -91,8 +91,10 @@ The agent has access to programmatic tools for gathering real-time data:
 The backend triggers specific UI state changes through action events:
 
 - `update_travel_form`: Automatically populates the sidebar with destination, dates, and checklist items when relevant information is detected
-- `enable_download`: Notifies the UI when a plan is ready for PDF export
 - `auto_select_preferences`: Highlights recommendations that align with stored user interests
+- `user_approval`: The user can select their preferences, finalize the plan, and download it as a PDF
+
+> Beyond domain-specific actions, the agent can also issue meta UI commands (e.g., switching themes) directly to the client, demonstrating browser-level control via natural language.
 
 ---
 

@@ -3,6 +3,8 @@
 A **full-stack AI-powered travel planning application** built with **FastAPI** and **React**.
 This project showcases a **multi-turn, agentic workflow** capable of tool usage, structured data extraction, real-time UI synchronization, and personalized itinerary generation.
 
+▶️ [Watch the demo video](https://www.youtube.com/watch?v=MuDQfuLNPF0)
+
 ---
 
 ## 🚀 Project Overview
